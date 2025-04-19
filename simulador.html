@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador JS - Resolución de Problemas con Solución Completa</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f9f9f9;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      color: #1d3557;
+    }
+    .desafio {
+      margin-bottom: 1.5rem;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 6px solid #457b9d;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      font-family: monospace;
+      font-size: 14px;
+      margin-top: 0.5rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      margin: 0.5rem 0.25rem;
+      border: none;
+      background-color: #457b9d;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #1d3557;
+    }
+    .resultado {
+      font-weight: bold;
+      margin-top: 0.5rem;
+    }
+    .pista {
+      color: #e63946;
+      font-style: italic;
+    }
+    .final {
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: #dff0d8;
+      border-left: 5px solid #28a745;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Simulador de Resolución de Problemas en JavaScript</h1>
+  <div id="simulador"></div>
+
+  <script>
+    const desafios = [
+      {
+        nivel: "Básico",
+        pregunta: "Escribe una función que reciba un arreglo de números y devuelva la suma de los pares.",
+        ejemplo: "[1, 2, 3, 4] => 6",
+        pista: "Usa `.filter()` y `.reduce()` o un bucle `for`.",
+        evaluar: function(respuesta) {
+          try {
+            eval(respuesta);
+            return typeof sumaPares === 'function' && sumaPares([1,2,3,4]) === 6;
+          } catch {
+            return false;
+          }
+        },
+        puntos: 10,
+        // Solución completa para el desafío
+        solucionCompleta: 
+`function sumaPares(arr) {
+  // Se filtran solo los números pares y se suman
+  return arr.filter(num => num % 2 === 0)
+            .reduce((acum, num) => acum + num, 0);
+}`
+      },
+      {
+        nivel: "Intermedio",
+        pregunta: "Cuenta cuántas veces aparece cada letra en un string (ignora mayúsculas).",
+        ejemplo: `"Hello" => { h: 1, e: 1, l: 2, o: 1 }`,
+        pista: "Convierte a minúsculas y recorre con `forEach`.",
+        evaluar: function(respuesta) {
+          try {
+            eval(respuesta);
+            const res = contarLetras("Hello");
+            return res.h === 1 && res.e === 1 && res.l === 2 && res.o === 1;
+          } catch {
+            return false;
+          }
+        },
+        puntos: 15,
+        solucionCompleta:
+`function contarLetras(texto) {
+  const resultado = {};
+  // Convertir el texto a minúsculas para ignorar diferencias
+  texto.toLowerCase().split('').forEach(letra => {
+    // Solo contar caracteres alfabéticos
+    if (/[a-z]/.test(letra)) {
+      resultado[letra] = (resultado[letra] || 0) + 1;
+    }
+  });
+  return resultado;
+}`
+      },
+      {
+        nivel: "Avanzado",
+        pregunta: "Determina si una cadena es un palíndromo (ignora espacios y signos).",
+        ejemplo: `"Anita lava la tina" => true`,
+        pista: "Limpia con regex y compara con el reverso.",
+        evaluar: function(respuesta) {
+          try {
+            eval(respuesta);
+            return esPalindromo("Anita lava la tina") === true;
+          } catch {
+            return false;
+          }
+        },
+        puntos: 20,
+        solucionCompleta:
+`function esPalindromo(str) {
+  // Convertir a minúsculas y remover caracteres no alfanuméricos
+  const limpio = str.toLowerCase().replace(/[^a-z0-9]/g, '');
+  // Comparar la cadena limpia con su reverso
+  return limpio === limpio.split('').reverse().join('');
+}`
+      }
+    ];
+
+    let indice = 0;
+    let puntuacion = 0;
+    const contenedor = document.getElementById("simulador");
+
+    // Función para mostrar el desafío actual
+    function mostrarDesafio() {
+      const d = desafios[indice];
+      contenedor.innerHTML = `
+        <div class="desafio">
+          <h3>Nivel: ${d.nivel}</h3>
+          <p><strong>Desafío:</strong> ${d.pregunta}</p>
+          <p><strong>Ejemplo:</strong> ${d.ejemplo}</p>
+          <button onclick="mostrarPista()">Ver pista</button>
+          <button onclick="pedirAyudaAI()">Obtener ayuda AI</button>
+          <button onclick="sugerirSolucionCompleta()">Me rindo, mostrar solución completa</button>
+          <div class="pista" id="pista"></div>
+          <textarea id="codigo" placeholder="Escribe aquí tu función..."></textarea>
+          <br/>
+          <button onclick="evaluarRespuesta()">Enviar respuesta</button>
+          <div class="resultado" id="resultado"></div>
+          <div id="respuestaAI" style="margin-top: 1rem; font-style: italic;"></div>
+        </div>
+      `;
+    }
+
+    // Función para mostrar la pista del desafío actual
+    function mostrarPista() {
+      document.getElementById("pista").innerText = desafios[indice].pista;
+    }
+
+    // Función para evaluar la respuesta ingresada
+    function evaluarRespuesta() {
+      const codigo = document.getElementById("codigo").value;
+      const esCorrecto = desafios[indice].evaluar(codigo);
+      const resultado = document.getElementById("resultado");
+
+      if (esCorrecto) {
+        resultado.innerText = "¡Correcto!";
+        resultado.style.color = "green";
+        puntuacion += desafios[indice].puntos;
+      } else {
+        resultado.innerText = "Incorrecto. Revisa tu lógica.";
+        resultado.style.color = "red";
+      }
+
+      // Remover feedback de la AI para no mezclar mensajes
+      document.getElementById("respuestaAI").innerText = "";
+
+      setTimeout(() => {
+        indice++;
+        if (indice < desafios.length) {
+          mostrarDesafio();
+        } else {
+          mostrarResumen();
+        }
+      }, 1500);
+    }
+
+    // Función para pedir ayuda de la AI (modelo local)
+    async function pedirAyudaAI() {
+      const codigo = document.getElementById("codigo").value;
+      const desafio = desafios[indice].pregunta;
+      const prompt = `Estoy trabajando en este desafío de JavaScript: "${desafio}". Mi código es:\n\n${codigo}\n\n¿Puedes decirme si está correcto? Si no, dime qué está mal y cómo corregirlo, paso a paso.`;
+      const respuestaAI = document.getElementById("respuestaAI");
+      respuestaAI.innerText = "Pensando...";
+  
+      try {
+        const response = await fetch("http://localhost:11434/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "mistral",
+            prompt: prompt,
+            stream: false
+          })
+        });
+  
+        const data = await response.json();
+        respuestaAI.innerText = data.response;
+      } catch (err) {
+        respuestaAI.innerText = "Error al conectar con el modelo AI local.";
+      }
+    }
+
+    // Función para sugerir una solución completa a través del modelo local
+    async function sugerirSolucionCompleta() {
+      const desafio = desafios[indice];
+      // Puedes incluir el código actual del usuario para contexto si lo deseas:
+      const codigo = document.getElementById("codigo").value;
+      const prompt = `Estoy teniendo dificultades con este desafío de JavaScript: "${desafio.pregunta}".
+Mi intento es el siguiente:
+${codigo || "[No se ha ingresado código]"}
+Por favor, proporciona una solución completa, bien comentada y detallada paso a paso.`;
+      
+      const respuestaAI = document.getElementById("respuestaAI");
+      respuestaAI.innerText = "Generando solución completa...";
+      
+      try {
+        const response = await fetch("http://localhost:11434/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "mistral",
+            prompt: prompt,
+            stream: false
+          })
+        });
+        const data = await response.json();
+        respuestaAI.innerText = data.response;
+      } catch (err) {
+        respuestaAI.innerText = "Error al obtener la solución completa del modelo AI local.";
+      }
+    }
+
+    function mostrarResumen() {
+      let nivel = "Principiante";
+      if (puntuacion >= 60) nivel = "Ninja JS";
+      else if (puntuacion >= 40) nivel = "Avanzado";
+      else if (puntuacion >= 20) nivel = "Intermedio";
+
+      contenedor.innerHTML = `
+        <div class="final">
+          <h2>¡Has completado el simulador!</h2>
+          <p>Puntuación total: <strong>${puntuacion}</strong></p>
+          <p>Nivel de dominio: <strong>${nivel}</strong></p>
+        </div>
+      `;
+    }
+
+    mostrarDesafio();
+  </script>
+
+</body>
+</html>
