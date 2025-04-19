@@ -135,8 +135,136 @@
   // Comparar la cadena limpia con su reverso
   return limpio === limpio.split('').reverse().join('');
 }`
-      }
-    ];
+      },
+      {
+        nivel: "Ninja JS",
+        pregunta: "Implementa una función que encuentre el número más grande en un arreglo de objetos.",
+        ejemplo: `[ { num: 1 }, { num: 5 }, { num: 3 } ] => 5`,
+        pista: "Usa `Math.max()` y `map()` para extraer los números.",
+        evaluar: function(respuesta) {
+          try {
+            eval(respuesta);
+            return encontrarMaximo([{ num: 1 }, { num: 5 }, { num: 3 }]) === 5;
+          } catch {
+            return false;
+          }
+        },
+        puntos: 25,
+        solucionCompleta:
+`function encontrarMaximo(arr) {
+    // Extraer los números y encontrar el máximo
+    return Math.max(...arr.map(obj => obj.num));
+    // Alternativa: usar reduce
+    // return arr.reduce((max, obj) => Math.max(max, obj.num), -Infinity);
+}`
+      },
+        {
+            nivel: "Maestro JS",
+            pregunta: "Crea una función que genere un número aleatorio entre dos límites.",
+            ejemplo: `random(1, 10) => 5`,
+            pista: "Usa `Math.random()` y multiplica por el rango.",
+            evaluar: function(respuesta) {
+            try {
+                eval(respuesta);
+                const num = random(1, 10);
+                return num >= 1 && num <= 10;
+            } catch {
+                return false;
+            }
+            },
+            puntos: 30,
+            solucionCompleta:
+`function random(min, max) {
+    // Genera un número aleatorio entre min y max (incluidos)
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}`
+        },
+        {
+            nivel: "Gran Maestro JS",
+            pregunta: "Implementa una función que encuentre el segundo número más grande en un arreglo.",
+            ejemplo: `[1, 3, 5, 2] => 3`,
+            pista: "Usa `Set` para eliminar duplicados y luego ordena.",
+            evaluar: function(respuesta) {
+                try {
+                    eval(respuesta);
+                    return segundoMayor([1, 3, 5, 2]) === 3;
+                } catch {
+                    return false;
+                }
+            },
+            puntos: 35,
+            solucionCompleta:
+`function segundoMayor(arr) {
+    // Usar Set para eliminar duplicados y convertir a array
+    const unicos = [...new Set(arr)];
+    // Ordenar de mayor a menor y devolver el segundo elemento
+    return unicos.sort((a, b) => b - a)[1];
+}`
+        },
+        {
+            nivel: "Leyenda JS",
+            pregunta: "Crea una función que determine si dos cadenas son anagramas.",
+            ejemplo: `"amor", "roma" => true`,
+            pista: "Ordena ambas cadenas y compáralas.",
+            evaluar: function(respuesta) {
+                try {
+                    eval(respuesta);
+                    return sonAnagramas("amor", "roma") === true;
+                } catch {
+                    return false;
+                }
+            },
+            puntos: 40,
+            solucionCompleta:   
+`function sonAnagramas(str1, str2) {
+    // Normalizar y ordenar ambas cadenas       
+    const normalizar = str => str.toLowerCase().replace(/[^a-z]/g, '').split('').sort().join('');
+    return normalizar(str1) === normalizar(str2);
+} // Ejemplo: sonAnagramas("amor", "roma") => true`
+        },
+        {
+            nivel: "Dios JS",
+            pregunta: "Implementa una función que encuentre la subsecuencia común más larga entre dos cadenas.",
+            ejemplo: `"abcde", "ace" => "ace"`,
+            pista: "Usa programación dinámica.",
+            evaluar: function(respuesta) {
+                try {
+                    eval(respuesta);
+                    return subsecuenciaComun("abcde", "ace") === "ace";
+                } catch {
+                    return false;
+                }
+            },
+            puntos: 50,
+            solucionCompleta:
+`function subsecuenciaComun(str1, str2) {
+    const dp = Array.from({ length: str1.length + 1 }, () => Array(str2.length + 1).fill(0));
+    for (let i = 1; i <= str1.length; i++) {
+        for (let j = 1; j <= str2.length; j++) {
+            if (str1[i - 1] === str2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            } else {
+                dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+    }
+    let i = str1.length, j = str2.length;
+    let resultado = '';
+    while (i > 0 && j > 0) {
+        if (str1[i - 1] === str2[j - 1]) {
+            resultado = str1[i - 1] + resultado;
+            i--;
+            j--;
+        } else if (dp[i - 1][j] > dp[i][j - 1]) {
+            i--;
+        } else {
+            j--;
+        }
+    }
+    return resultado;
+} // Ejemplo: subsecuenciaComun("abcde", "ace") => "ace"`
+        }
+    ];  
 
     let indice = 0;
     let puntuacion = 0;
@@ -161,6 +289,25 @@
           <div id="respuestaAI" style="margin-top: 1rem; font-style: italic;"></div>
         </div>
       `;
+
+      let tiempoRestante = 30;
+      let intervaloTiempo;
+
+      function iniciarTemporizador() {
+        tiempoRestante = 30;
+        document.getElementById("tiempo").innerText = `${tiempoRestante}s`;
+
+        intervaloTiempo = setInterval(() => {
+            tiempoRestante--;
+            document.getElementById("tiempo").innerText = `${tiempoRestante}s`;
+            if (tiempoRestante <= 0) {
+                clearInterval(intervaloTiempo);
+                alert("¡Tiempo agotado!");
+                indice++;
+                mostrarDesafio();
+            }
+            }, 1000);
+        }
     }
 
     // Función para mostrar la pista del desafío actual
